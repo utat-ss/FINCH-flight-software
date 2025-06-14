@@ -21,6 +21,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - name: obc-obc
+            board: obc
+            path: ./apps/obc
           - name: obc-nucleo
             board: nucleo_g431rb
             path: ./apps/obc
@@ -76,7 +79,9 @@ jobs:
 
           echo "Commit list: $commits"
 
-          EXTRA_ARGS=""
+          source finch-flight-software-env.sh
+
+          EXTRA_ARGS="-DBOARD_ROOT=$FINCH_FLIGHT_SOFTWARE_ROOT"
           if [ -f "${{ matrix.overlay }}" ]; then
             EXTRA_ARGS="-- -DDTC_OVERLAY_FILE=${{ matrix.overlay }}"
           fi
@@ -89,7 +94,9 @@ jobs:
             git checkout $commit
             rm -rf build/
             set +e
+
             west -v build -b ${{ matrix.board }} ${{ matrix.path }} -p $EXTRA_ARGS
+
             build_status=$?
             set -e
 
